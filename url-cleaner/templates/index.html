@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чистильщик ссылок — Удаляем трекеры и проверяем безопасность</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .url-input {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-clear {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .safe-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .safe {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .cleaned-url {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .stat {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 Чистильщик ссылок</h1>
+            <p>Удаляем трекеры, проверяем безопасность, защищаем вашу конфиденциальность</p>
+        </div>
+        
+        <div class="card">
+            <div class="input-group">
+                <input type="text" class="url-input" id="urlInput" placeholder="Вставьте ссылку для очистки...">
+                <button class="btn btn-primary" onclick="cleanUrl()">🚀 Очистить</button>
+                <button class="btn btn-clear" onclick="clearInput()">🗑️ Очистить</button>
+            </div>
+            
+            <div id="result" class="result">
+                <h3>📊 Результат проверки</h3>
+                <div id="warning" style="display:none;" class="danger-badge"></div>
+                <div class="cleaned-url" id="cleanedUrl"></div>
+                <div class="stats" id="stats"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>✨ Что мы умеем?</h3>
+            <ul style="margin-top: 15px; line-height: 1.8;">
+                <li>🔍 Удаляем UTM-метки и другие трекеры (fbclid, gclid, и др.)</li>
+                <li>🛡️ Проверяем домены по чёрному списку подозрительных сайтов</li>
+                <li>🔒 Проверяем использование HTTPS</li>
+                <li>📎 Раскрываем короткие ссылки (bit.ly, tinyurl и др.)</li>
+                <li>⚡ Работает в реальном времени через удобный веб-интерфейс</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Проект по курсу «Этичный хакинг: инструменты защиты на Python»</p>
+            <p>© 2024 | Инструмент для повышения цифровой грамотности</p>
+        </div>
+    </div>
+    
+    <script>
+        async function cleanUrl() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Пожалуйста, введите URL');
+                return;
+            }
+            
+            // Показываем индикатор загрузки
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('show');
+            document.getElementById('cleanedUrl').innerHTML = '⏳ Обработка...';
+            
+            try {
+                const response = await fetch('/clean', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({url: url})
+                });
+                
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                document.getElementById('cleanedUrl').innerHTML = '❌ Ошибка при обработке ссылки';
+            }
+        }
+        
+        function displayResult(data) {
+            // Очищенная ссылка
+            const cleanedHtml = `<strong>🧼 Очищенная ссылка:</strong><br><a href="${data.cleaned}" target="_blank">${data.cleaned}</a>`;
+            document.getElementById('cleanedUrl').innerHTML = cleanedHtml;
+            
+            // Статистика
+            let statsHtml = '';
+            
+            // Безопасность
+            if (data.safe) {
+                statsHtml += `<div class="stat"><span style="color: #28a745;">✅</span><br>Безопасный домен</div>`;
+            } else {
+                statsHtml += `<div class="stat"><span style="color: #dc3545;">⚠️</span><br>${data.warning || 'Подозрительный домен'}</div>`;
+            }
+            
+            // HTTPS
+            if (data.https) {
+                statsHtml += `<div class="stat"><span style="color: #28a745;">🔒</span><br>HTTPS</div>`;
+            } else {
+                statsHtml += `<div class="stat"><span style="color: #ffc107;">⚠️</span><br>Нет HTTPS</div>`;
+            }
+            
+            // Удалённые трекеры
+            const removedCount = data.removed_trackers ? data.removed_trackers.length : 0;
+            statsHtml += `<div class="stat"><span style="color: #17a2b8;">🗑️</span><br>Удалено трекеров: ${removedCount}</div>`;
+            
+            document.getElementById('stats').innerHTML = statsHtml;
+            
+            // Предупреждение если есть
+            if (!data.safe || !data.https) {
+                document.getElementById('warning').style.display = 'block';
+            }
+        }
+        
+        function clearInput() {
+            document.getElementById('urlInput').value = '';
+            document.getElementById('result').classList.remove('show');
+        }
+        
+        // Поддержка Enter
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                cleanUrl();
+            }
+        });
+    </script>
+</body>
+</html>
