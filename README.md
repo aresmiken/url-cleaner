@@ -13,7 +13,7 @@
 ## 📦 Установка
 
 ```bash
-git clone https://github.com/ВАШ_НИК/url-cleaner.git
+git clone https://github.com/aresmiken/url-cleaner.git
 cd url-cleaner
 pip install -r requirements.txt
 python app.py
